@@ -1,0 +1,45 @@
+site_name: go-diskimages
+site_description: Pure-Go disk-image tooling — create, detect, convert and resize VM disk images (raw / QCOW2 / Apple UDIF-DMG) over one shared format contract. No cgo, no external tools.
+site_url: https://go-diskimages.github.io/docs/
+repo_url: https://github.com/go-diskimages
+repo_name: go-diskimages
+edit_uri: ""
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle: { icon: material/weather-night, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle: { icon: material/weather-sunny, name: Light mode }
+  features: [navigation.sections, navigation.top, content.code.copy, search.suggest]
+
+extra_css: [stylesheets/brand.css]
+extra:
+  version:
+    provider: mike
+
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
+  - pymdownx.highlight
+
+nav:
+  - Home: index.md
+  - Components:
+      - Overview: components/index.md
+      - "interface — the format contract": components/interface.md
+      - "diskimage — toolkit + CLI": components/diskimage.md
+      - "qcow2 — QCOW2 v2 codec": components/qcow2.md
+      - "dmg — Apple UDIF/DMG": components/dmg.md

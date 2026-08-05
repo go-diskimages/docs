@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Pure-Go disk-image tooling — create, detect, convert and resize VM disk images (raw / QCOW2 / Apple UDIF-DMG) over one shared format contract. No cgo, no external tools.">
+        <meta name="description" content="Pure-Go disk-image tooling — create, detect, convert and resize VM disk images (raw / QCOW2 / Apple UDIF-DMG / Tart-OCI) over one shared format contract. No cgo, no external tools.">
       
       
       
@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -491,10 +491,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#image-creation-conversion" class="md-nav__link">
+  <a href="#image-creation-growing-resizing-converting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Image creation &amp; conversion
+        Image creation, growing, resizing, converting
       
     </span>
   </a>
@@ -502,21 +502,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#oci-tart-disk-extraction-darwin" class="md-nav__link">
+  <a href="#in-image-file-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OCI / Tart disk extraction (darwin)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#grub-patching-darwin" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GRUB patching (darwin)
+        In-image file operations
       
     </span>
   </a>
@@ -632,6 +621,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../raw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    raw — unstructured codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tart-oci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tart-oci — Tart/OCI puller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -694,10 +739,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#image-creation-conversion" class="md-nav__link">
+  <a href="#image-creation-growing-resizing-converting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Image creation &amp; conversion
+        Image creation, growing, resizing, converting
       
     </span>
   </a>
@@ -705,21 +750,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#oci-tart-disk-extraction-darwin" class="md-nav__link">
+  <a href="#in-image-file-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OCI / Tart disk extraction (darwin)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#grub-patching-darwin" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GRUB patching (darwin)
+        In-image file operations
       
     </span>
   </a>
@@ -788,16 +822,22 @@
 
 
 <h1 id="diskimage-toolkit-cli">diskimage — toolkit + CLI</h1>
-<p><code>github.com/go-diskimages/diskimage</code> is the unified toolkit for <strong>creating and
-converting</strong> VM disk images (raw / QCOW2 / OCI-Tart) and <strong>patching GRUB</strong>
-configurations in place. It is used to prepare images for Apple
+<p><code>github.com/go-diskimages/diskimage</code> is the unified toolkit (library + CLI) for
+<strong>creating, converting, resizing</strong>, and reading/writing files inside VM disk
+images (raw / DMG-UDIF, plus QCOW2 via the CLI), across
+ext4/fat32/btrfs/xfs/zfs/exfat/apfs and MBR/GPT partition tables, with optional
+LUKS and APFS FileVault encryption. It is used to prepare images for Apple
 Virtualization.framework VMs. It also ships a <code>cmd/diskimage</code> CLI (renamed from
 the older <code>diskimagec</code>).</p>
 <div class="highlight"><pre><span></span><code>github.com/go-diskimages/diskimage
 </code></pre></div>
-<p>It builds on the <a href="../qcow2/"><code>qcow2</code></a> and <a href="../dmg/"><code>dmg</code></a> codecs and on the
-sibling <code>ext4</code> (go-filesystems) and <code>lzfse</code> (go-compressions) packages. OCI and
-GRUB features are macOS-only (<code>darwin</code> build tag).</p>
+<p>It composes the <a href="../qcow2/"><code>qcow2</code></a> and <a href="../dmg/"><code>dmg</code></a> codecs, the
+<a href="https://github.com/go-filesystems">go-filesystems</a> drivers, and
+<a href="https://github.com/go-fde">go-fde</a> (APFS/LUKS encryption) into one CLI +
+library — see its <code>go.mod</code> for exact versions. GRUB-config patching lives in
+the sibling <a href="https://go-bootloaders.github.io/docs/"><code>go-bootloaders/grub</code></a>
+package; OCI/Tart image extraction lives in the sibling
+<a href="../tart-oci/"><code>tart-oci</code></a> package.</p>
 <h2 id="block-device-dispatcher">Block device dispatcher</h2>
 <p><code>OpenBlockDevice</code> opens a raw, QCOW2, or <strong>UDIF-UDRW DMG</strong> image behind one
 uniform <code>BlockDevice</code> (<code>ReadAt</code> / <code>WriteAt</code> / <code>Size</code> / <code>Close</code>):</p>
@@ -832,23 +872,29 @@ unpack-edit-repack path.</p>
 <p>Backing is raw (fallback) or QCOW2 (magic <code>QFI\xfb</code>). <code>Size()</code> returns the
 decrypted payload length — <code>0</code> for LUKS1 (its header does not encode the
 payload length), the configured length for LUKS2.</p>
-<h2 id="image-creation-conversion">Image creation &amp; conversion</h2>
-<div class="highlight"><pre><span></span><code><span class="c1">// Raw images.</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">CreateRaw</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">sizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
-
-<span class="c1">// QCOW2 → raw.</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">IsQCOW2File</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">ConvertQCOW2ToRaw</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span><span class="w"> </span><span class="nx">dst</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">w</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<h2 id="image-creation-growing-resizing-converting">Image creation, growing, resizing, converting</h2>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">Create</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">CreateOptions</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">Grow</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">sizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">ResizeImage</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">newSizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">ConvertImageFormat</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">dstFormat</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
 </code></pre></div>
-<h2 id="oci-tart-disk-extraction-darwin">OCI / Tart disk extraction <em>(darwin)</em></h2>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">TartDiskMediaType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;application/vnd.cirruslabs.tart.disk.v2&quot;</span>
-
-<span class="kd">func</span><span class="w"> </span><span class="nx">BlobPath</span><span class="p">(</span><span class="nx">cacheDir</span><span class="p">,</span><span class="w"> </span><span class="nx">digest</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">string</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">ExtractOCIDisk</span><span class="p">(</span><span class="nx">cacheDir</span><span class="p">,</span><span class="w"> </span><span class="nx">dst</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">w</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
-</code></pre></div>
-<h2 id="grub-patching-darwin">GRUB patching <em>(darwin)</em></h2>
-<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">PatchGrubQuiet</span><span class="p">(</span><span class="nx">diskPath</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w">    </span><span class="c1">// removes `quiet` from the GRUB cmdline</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">PatchGrubConsole</span><span class="p">(</span><span class="nx">diskPath</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w">  </span><span class="c1">// enables VGA + VirtIO console</span>
+<p><code>CreateOptions</code> selects the container format (<code>FormatRaw</code>/<code>FormatDmg</code>),
+partition scheme (<code>PartNone</code>/<code>PartMBR</code>/<code>PartGPT</code>), filesystem (<code>FSNone</code>,
+<code>FSExt4</code>, <code>FSFat32</code>, <code>FSBtrfs</code>, <code>FSXfs</code>, <code>FSZfs</code>, <code>FSExFAT</code>, <code>FSNTFS</code>,
+<code>FSApfs</code>), volume label, and — for DMG images — the UDIF sub-format and an
+optional FileVault passphrase. <code>ResizeImage</code>/<code>ConvertImageFormat</code> are pure Go
+(via the <code>dmg</code> codec) and cross-platform. QCOW2 creation is exposed by the CLI
+(<code>diskimage create qcow2</code>) directly through the sibling <code>qcow2</code> package.</p>
+<h2 id="in-image-file-operations">In-image file operations</h2>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">ReadFile</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">FileOptions</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">WriteFile</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">FileOptions</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="nx">perm</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">FileMode</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">Stat</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">FileOptions</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">filesystem</span><span class="p">.</span><span class="nx">Stat</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">Rename</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">FileOptions</span><span class="p">,</span><span class="w"> </span><span class="nx">newPath</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">DeleteFile</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">FileOptions</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">DeleteDir</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">FileOptions</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">MkDir</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">FileOptions</span><span class="p">,</span><span class="w"> </span><span class="nx">perm</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">FileMode</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">List</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="nx">ListOptions</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="nx">ListEntry</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">DetectFilesystem</span><span class="p">(</span><span class="nx">imagePath</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">partIndex</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">FilesystemType</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="ext4-volume-label">ext4 volume label</h2>
 <div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">SetExt4Label</span><span class="p">(</span><span class="nx">imagePath</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">partIndex</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
@@ -906,31 +952,15 @@ a backing image:</p>
 </tbody>
 </table>
 <h2 id="build-requirements">Build requirements</h2>
-<p>macOS only for the OCI and GRUB features (<code>darwin</code> build tag); the raw / QCOW2 /
-DMG block-device and conversion paths build everywhere.</p>
+<p>Pure Go (<code>CGO_ENABLED=0</code>), cross-platform, all six supported 64-bit
+architectures. A handful of darwin-only integration tests additionally
+cross-check the pure-Go UDIF codec against real <code>hdiutil</code> output and the
+<code>go-bootloaders/grub</code> patch helpers against real GRUB behavior on macOS; they
+are not part of the public API and are not required to build or use the
+library on any platform.</p>
 <h2 id="debugging">Debugging</h2>
-<table>
-<thead>
-<tr>
-<th>Env var</th>
-<th>Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>DISKIMAGE_DEBUG</code></td>
-<td>global debug output</td>
-</tr>
-<tr>
-<td><code>DISKIMAGE_ZFS_DEBUG</code></td>
-<td>ZFS-specific traces</td>
-</tr>
-<tr>
-<td><code>DISKIMAGE_BTRFS_DEBUG</code></td>
-<td>Btrfs-specific traces</td>
-</tr>
-</tbody>
-</table>
+<p>The <code>integration</code> stress test's iteration count is configurable via the
+<code>DISKIMAGE_STRESS_ITERS</code> environment variable.</p>
 
 
 
@@ -989,7 +1019,7 @@ DMG block-device and conversion paths build everywhere.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

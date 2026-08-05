@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Pure-Go disk-image tooling — create, detect, convert and resize VM disk images (raw / QCOW2 / Apple UDIF-DMG) over one shared format contract. No cgo, no external tools.">
+        <meta name="description" content="Pure-Go disk-image tooling — create, detect, convert and resize VM disk images (raw / QCOW2 / Apple UDIF-DMG / Tart-OCI) over one shared format contract. No cgo, no external tools.">
       
       
       
@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
@@ -534,6 +534,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="components/raw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    raw — unstructured codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="components/tart-oci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tart-oci — Tart/OCI puller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -631,7 +687,7 @@ Virtualization.framework VMs.</p>
 <tr>
 <td><a href="components/diskimage/"><code>diskimage</code></a></td>
 <td>toolkit</td>
-<td>Unified create/convert toolkit + <code>cmd/diskimage</code> CLI; one <code>OpenBlockDevice</code> dispatcher over raw / QCOW2 / UDIF-DMG, optional LUKS, ext4 label edit, GRUB patching.</td>
+<td>Unified create/convert/resize toolkit + <code>cmd/diskimage</code> CLI; block devices (with optional LUKS/APFS-FDE) over raw / QCOW2 / UDIF-DMG, in-image file operations, filesystem detection, ext4 label edit.</td>
 </tr>
 <tr>
 <td><a href="components/qcow2/"><code>qcow2</code></a></td>
@@ -641,17 +697,23 @@ Virtualization.framework VMs.</p>
 <tr>
 <td><a href="components/dmg/"><code>dmg</code></a></td>
 <td>codec</td>
-<td>Apple UDIF/DMG helpers — detect, convert between variants, resize, wrap/unwrap raw. Big-endian <code>koly</code> trailer.</td>
+<td>Apple UDIF/DMG helpers — detect, convert between variants, resize, wrap/unwrap raw. Big-endian <code>koly</code> trailer. Pure Go, cross-platform.</td>
+</tr>
+<tr>
+<td><a href="components/raw/"><code>raw</code></a></td>
+<td>codec</td>
+<td>The unstructured identity format — create, detect, identity convert, grow/shrink, and a read-write block device.</td>
+</tr>
+<tr>
+<td><a href="components/tart-oci/"><code>tart-oci</code></a></td>
+<td>codec</td>
+<td>Pulls Tart VM images from an OCI registry, verifies every blob by digest, and materializes a byte-exact raw disk.</td>
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="admonition-title">Placeholders not yet shipped</p>
-<p>The org also holds two <strong>empty placeholder</strong> repos — <code>raw</code> and <code>tart-oci</code> —
-reserved for a standalone raw-image codec and an OCI/Tart disk extractor.
-They contain no code yet and are intentionally omitted here. (Today the
-raw and Tart-OCI paths live inside <a href="components/diskimage/"><code>diskimage</code></a>.)</p>
-</div>
+<p>GRUB config patching lives in the sibling
+<a href="https://go-bootloaders.github.io/docs/"><code>go-bootloaders/grub</code></a> package, not
+in this org.</p>
 
 
 
@@ -710,7 +772,7 @@ raw and Tart-OCI paths live inside <a href="components/diskimage/"><code>diskima
       <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.top", "content.code.copy", "search.suggest"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

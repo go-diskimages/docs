@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://go-diskimages.github.io/docs/0.1/components/dmg/">
+        <link rel="canonical" href="https://go-diskimages.github.io/docs/0.1/components/raw/">
       
       
-        <link rel="prev" href="../qcow2/">
+        <link rel="prev" href="../dmg/">
       
       
-        <link rel="next" href="../raw/">
+        <link rel="next" href="../tart-oci/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>dmg — Apple UDIF/DMG - go-diskimages</title>
+        <title>raw — unstructured codec - go-diskimages</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dmg-apple-udifdmg" class="md-skip">
+        <a href="#raw-unstructured-disk-image-codec" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              dmg — Apple UDIF/DMG
+              raw — unstructured codec
             
           </span>
         </div>
@@ -456,6 +456,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../dmg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dmg — Apple UDIF/DMG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -475,7 +503,7 @@
   <span class="md-ellipsis">
     
   
-    dmg — Apple UDIF/DMG
+    raw — unstructured codec
   
 
     
@@ -493,7 +521,7 @@
   <span class="md-ellipsis">
     
   
-    dmg — Apple UDIF/DMG
+    raw — unstructured codec
   
 
     
@@ -530,10 +558,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#public-api" class="md-nav__link">
+  <a href="#package-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Public API
+        Package functions
       
     </span>
   </a>
@@ -552,10 +580,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#device-read-write-block-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Examples
+        Device — read-write block access
       
     </span>
   </a>
@@ -566,34 +594,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../raw/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    raw — unstructured codec
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -672,10 +672,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#public-api" class="md-nav__link">
+  <a href="#package-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Public API
+        Package functions
       
     </span>
   </a>
@@ -694,10 +694,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#device-read-write-block-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Examples
+        Device — read-write block access
       
     </span>
   </a>
@@ -721,164 +721,64 @@
 
 
 
-<h1 id="dmg-apple-udifdmg">dmg — Apple UDIF/DMG</h1>
-<p><code>github.com/go-diskimages/dmg</code> is a pure-Go set of helpers for the native
-Apple <strong>UDIF</strong> disk-image format (<code>.dmg</code>). No external tools (<code>hdiutil</code>,
-<code>plutil</code>) are required, and it works on <strong>all platforms</strong> — not just macOS.</p>
+<h1 id="raw-unstructured-disk-image-codec">raw — unstructured disk image codec</h1>
+<p><code>github.com/go-diskimages/raw</code> (Go package <code>image_raw</code>) is a pure-Go
+creator, detector, converter, and read-write block device for the <strong>raw</strong>
+(unstructured) disk-image format. No CGO, no external tools. Works on all
+platforms and all supported Go architectures.</p>
 <h2 id="format">Format</h2>
-<p>A UDIF file ends with a 512-byte <strong><code>koly</code> trailer (big-endian)</strong> that records
-the image variant, the data-fork offset/length, and the offset/length of an
-embedded XML plist. The plist carries an array of <code>blkx</code> (mish) tables, each a
-sequence of sector runs:</p>
-<table>
-<thead>
-<tr>
-<th>Run type</th>
-<th>Code</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>RAW</td>
-<td><code>0x00000001</code></td>
-<td>Uncompressed sectors stored verbatim</td>
-</tr>
-<tr>
-<td>NOCOPY</td>
-<td><code>0x00000000</code></td>
-<td>Zero-filled sectors (no stored data)</td>
-</tr>
-<tr>
-<td>FREE</td>
-<td><code>0x7FFFFFFE</code></td>
-<td>Unallocated, treated as zeros</td>
-</tr>
-<tr>
-<td>LZFSE</td>
-<td><code>0x80000004</code></td>
-<td>LZFSE compressed (Apple, macOS 10.12+)</td>
-</tr>
-<tr>
-<td>ZLIB</td>
-<td><code>0x80000005</code></td>
-<td>zlib-compressed sectors</td>
-</tr>
-<tr>
-<td>Terminator</td>
-<td><code>0xFFFFFFFF</code></td>
-<td>End-of-table marker</td>
-</tr>
-</tbody>
-</table>
-<p>Image variants:</p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Code</th>
-<th>Read</th>
-<th>Write</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>UDRW</code></td>
-<td>1</td>
-<td>✓</td>
-<td>✓</td>
-<td>Read-write, fixed size</td>
-</tr>
-<tr>
-<td><code>UDRO</code></td>
-<td>2</td>
-<td>✓</td>
-<td>✓</td>
-<td>Read-only (stored as RAW)</td>
-</tr>
-<tr>
-<td><code>UDCO</code></td>
-<td>3</td>
-<td>✓</td>
-<td>—</td>
-<td>ADC compressed (write not supported)</td>
-</tr>
-<tr>
-<td><code>UDZO</code></td>
-<td>4</td>
-<td>✓</td>
-<td>✓</td>
-<td>zlib compressed (1 MiB chunks)</td>
-</tr>
-<tr>
-<td><code>UDBZ</code></td>
-<td>5</td>
-<td>✓</td>
-<td>—</td>
-<td>bzip2 compressed (write not supported)</td>
-</tr>
-<tr>
-<td><code>UDSP</code></td>
-<td>11</td>
-<td>✓</td>
-<td>✓</td>
-<td>Sparse (NOCOPY runs for zero sectors)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="public-api">Public API</h2>
-<div class="highlight"><pre><span></span><code><span class="c1">// DetectUDIFFormat returns &quot;UDRW&quot;, &quot;UDSP&quot;, … from the koly trailer.</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">DetectUDIFFormat</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<p>A raw image is a plain byte-for-byte image of a block device: the file's
+contents <strong>are</strong> the disk contents. There is no header, no metadata, no
+allocation table, and no compression — the trivial <em>identity</em> format of the
+<code>go-diskimages</code> family:</p>
+<ul>
+<li><strong>Create</strong> writes a sparse, zero-filled file of the requested size.</li>
+<li><strong>ToRaw</strong> is a straight byte copy — a raw image already <em>is</em> its own raw form.</li>
+<li><strong>Detect</strong> is the negative/fallback case: a regular, non-empty file that
+  carries none of the known structured-container signatures (QCOW2, VMDK,
+  VDI, VHD, or Apple UDIF/DMG) is a raw image.</li>
+<li><strong>Resize</strong> truncates the file up or down; both grow (zero-filled tail) and
+  shrink (discarded tail) are safe, since there is no internal structure to
+  corrupt.</li>
+</ul>
+<h2 id="package-functions">Package functions</h2>
+<div class="highlight"><pre><span></span><code><span class="c1">// Create writes a new empty raw disk image with the given size in bytes.</span>
+<span class="c1">// The file is sparse and reads back as zeros.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">Create</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">sizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
 
-<span class="c1">// IsUDIF reports whether path is a valid Apple UDIF image.</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">IsUDIF</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
+<span class="c1">// IsRawImage reports whether path holds a raw disk image.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">IsRawImage</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
 
-<span class="c1">// ConvertUDIF reads all sectors from src and writes them to dst in dstFormat.</span>
-<span class="c1">// Write formats: UDRW, UDRO, UDSP (sparse), UDZO (zlib). UDCO and UDBZ are</span>
-<span class="c1">// not yet writable. CRC-32 checksums are written in the koly + blkx headers.</span>
-<span class="c1">// Multi-segment source images are not supported.</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">ConvertUDIF</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span><span class="w"> </span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">dstFormat</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
-
-<span class="c1">// ResizeUDRW grows a UDIF image to newSizeBytes (rounded to a 512-byte</span>
-<span class="c1">// boundary), preserving the variant. Shrinking is not supported.</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">ResizeUDRW</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">newSizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
-
-<span class="c1">// UnpackToTemp extracts all sectors to a raw temp file (caller os.Removes it).</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">UnpackToTemp</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">tmpPath</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
-
-<span class="c1">// PackFromTemp wraps the raw file as a new UDIF UDRW image (atomic).</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">PackFromTemp</span><span class="p">(</span><span class="nx">tmpPath</span><span class="p">,</span><span class="w"> </span><span class="nx">destPath</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
-
-<span class="c1">// WrapRaw converts an existing raw file into a UDIF UDRW image in place (atomic).</span>
-<span class="kd">func</span><span class="w"> </span><span class="nx">WrapRaw</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="c1">// ConvertToRaw copies the raw image at src to dst (the identity conversion),</span>
+<span class="c1">// emitting &quot;N%\n&quot; progress lines to w.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">ConvertToRaw</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span><span class="w"> </span><span class="nx">dst</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">w</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
 </code></pre></div>
 <h2 id="format_1"><code>Format</code></h2>
 <p><code>Format{}</code> satisfies the <a href="../interface/"><code>interface</code></a> <code>Format</code> contract
 structurally (no import needed):</p>
 <div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">Format</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
 
-<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">Name</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w">                                 </span><span class="c1">// &quot;dmg&quot;</span>
-<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">Create</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">sizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w">    </span><span class="c1">// blank UDIF UDRW</span>
-<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">Detect</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w">             </span><span class="c1">// koly magic</span>
-<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">ToRaw</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span><span class="w"> </span><span class="nx">dst</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">w</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w">     </span><span class="c1">// extract sectors → raw</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">Name</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w">                                 </span><span class="c1">// &quot;raw&quot;</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">Create</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">sizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w">    </span><span class="c1">// new sparse raw image</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">Detect</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w">             </span><span class="c1">// negative/fallback detection</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">ToRaw</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span><span class="w"> </span><span class="nx">dst</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">w</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w">     </span><span class="c1">// identity copy</span>
 <span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">Format</span><span class="p">)</span><span class="w"> </span><span class="nx">Resize</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">newSizeBytes</span><span class="w"> </span><span class="kt">int64</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="c1">// grow or shrink</span>
 </code></pre></div>
-<h2 id="examples">Examples</h2>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="s">&quot;github.com/go-diskimages/dmg&quot;</span>
+<h2 id="device-read-write-block-access"><code>Device</code> — read-write block access</h2>
+<p><code>OpenDevice</code> opens a raw image as a random-access block device. Virtual
+offset N maps directly onto file offset N.</p>
+<div class="highlight"><pre><span></span><code><span class="nx">dev</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">image_raw</span><span class="p">.</span><span class="nx">OpenDevice</span><span class="p">(</span><span class="s">&quot;disk.raw&quot;</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="k">defer</span><span class="w"> </span><span class="nx">dev</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
 
-<span class="c1">// Detect and convert.</span>
-<span class="nx">variant</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">dmg</span><span class="p">.</span><span class="nx">DetectUDIFFormat</span><span class="p">(</span><span class="s">&quot;disk.dmg&quot;</span><span class="p">)</span><span class="w">        </span><span class="c1">// e.g. &quot;UDRW&quot;</span>
-<span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">dmg</span><span class="p">.</span><span class="nx">ConvertUDIF</span><span class="p">(</span><span class="s">&quot;disk.dmg&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;disk.sparse.dmg&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UDSP&quot;</span><span class="p">)</span>
-<span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">dmg</span><span class="p">.</span><span class="nx">ConvertUDIF</span><span class="p">(</span><span class="s">&quot;disk.dmg&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;disk.z.dmg&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UDZO&quot;</span><span class="p">)</span>
-<span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">dmg</span><span class="p">.</span><span class="nx">ResizeUDRW</span><span class="p">(</span><span class="s">&quot;disk.dmg&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&lt;&lt;</span><span class="mi">30</span><span class="p">)</span><span class="w">                 </span><span class="c1">// grow to 2 GiB</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">dev</span><span class="p">.</span><span class="nx">WriteAt</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">dev</span><span class="p">.</span><span class="nx">Sync</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 
-<span class="c1">// Wrap a raw file, edit, repack.</span>
-<span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">dmg</span><span class="p">.</span><span class="nx">WrapRaw</span><span class="p">(</span><span class="s">&quot;disk.raw&quot;</span><span class="p">)</span><span class="w">                           </span><span class="c1">// disk.raw → UDIF in place</span>
-<span class="nx">tmp</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">dmg</span><span class="p">.</span><span class="nx">UnpackToTemp</span><span class="p">(</span><span class="s">&quot;disk.dmg&quot;</span><span class="p">)</span>
-<span class="k">defer</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Remove</span><span class="p">(</span><span class="nx">tmp</span><span class="p">)</span>
-<span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">dmg</span><span class="p">.</span><span class="nx">PackFromTemp</span><span class="p">(</span><span class="nx">tmp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;disk.dmg&quot;</span><span class="p">)</span>
+<span class="nx">buf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="nx">dev</span><span class="p">.</span><span class="nx">ReadAt</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="p">)</span>
 </code></pre></div>
+<p>Unlike the sparse container formats, a raw <code>Device</code>'s virtual size can both
+grow and shrink via <code>Truncate</code>.</p>
 
 
 

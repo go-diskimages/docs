@@ -26,12 +26,12 @@ Virtualization.framework VMs.
 | Module | Layer | What it does |
 |--------|-------|--------------|
 | [`interface`](components/interface.md) | contract | The shared format contract (`Name`/`Create`/`Detect`/`ToRaw`/`Resize`) every codec satisfies structurally — no import required. |
-| [`diskimage`](components/diskimage.md) | toolkit | Unified create/convert toolkit + `cmd/diskimage` CLI; one `OpenBlockDevice` dispatcher over raw / QCOW2 / UDIF-DMG, optional LUKS, ext4 label edit, GRUB patching. |
+| [`diskimage`](components/diskimage.md) | toolkit | Unified create/convert/resize toolkit + `cmd/diskimage` CLI; block devices (with optional LUKS/APFS-FDE) over raw / QCOW2 / UDIF-DMG, in-image file operations, filesystem detection, ext4 label edit. |
 | [`qcow2`](components/qcow2.md) | codec | QCOW2 v2/v3 codec — create, detect, convert-to-raw, resize, and a lazy copy-on-write block device. Big-endian on-disk. |
-| [`dmg`](components/dmg.md) | codec | Apple UDIF/DMG helpers — detect, convert between variants, resize, wrap/unwrap raw. Big-endian `koly` trailer. |
+| [`dmg`](components/dmg.md) | codec | Apple UDIF/DMG helpers — detect, convert between variants, resize, wrap/unwrap raw. Big-endian `koly` trailer. Pure Go, cross-platform. |
+| [`raw`](components/raw.md) | codec | The unstructured identity format — create, detect, identity convert, grow/shrink, and a read-write block device. |
+| [`tart-oci`](components/tart-oci.md) | codec | Pulls Tart VM images from an OCI registry, verifies every blob by digest, and materializes a byte-exact raw disk. |
 
-!!! note "Placeholders not yet shipped"
-    The org also holds two **empty placeholder** repos — `raw` and `tart-oci` —
-    reserved for a standalone raw-image codec and an OCI/Tart disk extractor.
-    They contain no code yet and are intentionally omitted here. (Today the
-    raw and Tart-OCI paths live inside [`diskimage`](components/diskimage.md).)
+GRUB config patching lives in the sibling
+[`go-bootloaders/grub`](https://go-bootloaders.github.io/docs/) package, not
+in this org.

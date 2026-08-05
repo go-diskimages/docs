@@ -1,5 +1,5 @@
 site_name: go-diskimages
-site_description: Pure-Go disk-image tooling — create, detect, convert and resize VM disk images (raw / QCOW2 / Apple UDIF-DMG) over one shared format contract. No cgo, no external tools.
+site_description: Pure-Go disk-image tooling — create, detect, convert and resize VM disk images (raw / QCOW2 / Apple UDIF-DMG / Tart-OCI) over one shared format contract. No cgo, no external tools.
 site_url: https://go-diskimages.github.io/docs/
 repo_url: https://github.com/go-diskimages
 repo_name: go-diskimages
@@ -43,3 +43,5 @@ nav:
       - "diskimage — toolkit + CLI": components/diskimage.md
       - "qcow2 — QCOW2 v2 codec": components/qcow2.md
       - "dmg — Apple UDIF/DMG": components/dmg.md
+      - "raw — unstructured codec": components/raw.md
+      - "tart-oci — Tart/OCI puller": components/tart-oci.md

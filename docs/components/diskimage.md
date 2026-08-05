@@ -1,8 +1,10 @@
 # diskimage — toolkit + CLI
 
-`github.com/go-diskimages/diskimage` is the unified toolkit for **creating and
-converting** VM disk images (raw / QCOW2 / OCI-Tart) and **patching GRUB**
-configurations in place. It is used to prepare images for Apple
+`github.com/go-diskimages/diskimage` is the unified toolkit (library + CLI) for
+**creating, converting, resizing**, and reading/writing files inside VM disk
+images (raw / DMG-UDIF, plus QCOW2 via the CLI), across
+ext4/fat32/btrfs/xfs/zfs/exfat/apfs and MBR/GPT partition tables, with optional
+LUKS and APFS FileVault encryption. It is used to prepare images for Apple
 Virtualization.framework VMs. It also ships a `cmd/diskimage` CLI (renamed from
 the older `diskimagec`).
 
@@ -10,9 +12,13 @@ the older `diskimagec`).
 github.com/go-diskimages/diskimage
 ```
 
-It builds on the [`qcow2`](qcow2.md) and [`dmg`](dmg.md) codecs and on the
-sibling `ext4` (go-filesystems) and `lzfse` (go-compressions) packages. OCI and
-GRUB features are macOS-only (`darwin` build tag).
+It composes the [`qcow2`](qcow2.md) and [`dmg`](dmg.md) codecs, the
+[go-filesystems](https://github.com/go-filesystems) drivers, and
+[go-fde](https://github.com/go-fde) (APFS/LUKS encryption) into one CLI +
+library — see its `go.mod` for exact versions. GRUB-config patching lives in
+the sibling [`go-bootloaders/grub`](https://go-bootloaders.github.io/docs/)
+package; OCI/Tart image extraction lives in the sibling
+[`tart-oci`](tart-oci.md) package.
 
 ## Block device dispatcher
 
@@ -57,31 +63,35 @@ Backing is raw (fallback) or QCOW2 (magic `QFI\xfb`). `Size()` returns the
 decrypted payload length — `0` for LUKS1 (its header does not encode the
 payload length), the configured length for LUKS2.
 
-## Image creation & conversion
+## Image creation, growing, resizing, converting
 
 ```go
-// Raw images.
-func CreateRaw(path string, sizeBytes int64) error
-
-// QCOW2 → raw.
-func IsQCOW2File(path string) bool
-func ConvertQCOW2ToRaw(src, dst string, w io.Writer) error
+func Create(opts CreateOptions) error
+func Grow(path string, sizeBytes int64) error
+func ResizeImage(path string, newSizeBytes int64) error
+func ConvertImageFormat(path, dstFormat string) error
 ```
 
-## OCI / Tart disk extraction *(darwin)*
+`CreateOptions` selects the container format (`FormatRaw`/`FormatDmg`),
+partition scheme (`PartNone`/`PartMBR`/`PartGPT`), filesystem (`FSNone`,
+`FSExt4`, `FSFat32`, `FSBtrfs`, `FSXfs`, `FSZfs`, `FSExFAT`, `FSNTFS`,
+`FSApfs`), volume label, and — for DMG images — the UDIF sub-format and an
+optional FileVault passphrase. `ResizeImage`/`ConvertImageFormat` are pure Go
+(via the `dmg` codec) and cross-platform. QCOW2 creation is exposed by the CLI
+(`diskimage create qcow2`) directly through the sibling `qcow2` package.
+
+## In-image file operations
 
 ```go
-const TartDiskMediaType = "application/vnd.cirruslabs.tart.disk.v2"
-
-func BlobPath(cacheDir, digest string) string
-func ExtractOCIDisk(cacheDir, dst string, w io.Writer) error
-```
-
-## GRUB patching *(darwin)*
-
-```go
-func PatchGrubQuiet(diskPath string)    // removes `quiet` from the GRUB cmdline
-func PatchGrubConsole(diskPath string)  // enables VGA + VirtIO console
+func ReadFile(opts FileOptions) ([]byte, error)
+func WriteFile(opts FileOptions, data []byte, perm os.FileMode) error
+func Stat(opts FileOptions) (filesystem.Stat, error)
+func Rename(opts FileOptions, newPath string) error
+func DeleteFile(opts FileOptions) error
+func DeleteDir(opts FileOptions) error
+func MkDir(opts FileOptions, perm os.FileMode) error
+func List(opts ListOptions) ([]ListEntry, error)
+func DetectFilesystem(imagePath string, partIndex int) (FilesystemType, error)
 ```
 
 ## ext4 volume label
@@ -116,13 +126,14 @@ a backing image:
 
 ## Build requirements
 
-macOS only for the OCI and GRUB features (`darwin` build tag); the raw / QCOW2 /
-DMG block-device and conversion paths build everywhere.
+Pure Go (`CGO_ENABLED=0`), cross-platform, all six supported 64-bit
+architectures. A handful of darwin-only integration tests additionally
+cross-check the pure-Go UDIF codec against real `hdiutil` output and the
+`go-bootloaders/grub` patch helpers against real GRUB behavior on macOS; they
+are not part of the public API and are not required to build or use the
+library on any platform.
 
 ## Debugging
 
-| Env var | Effect |
-|---------|--------|
-| `DISKIMAGE_DEBUG` | global debug output |
-| `DISKIMAGE_ZFS_DEBUG` | ZFS-specific traces |
-| `DISKIMAGE_BTRFS_DEBUG` | Btrfs-specific traces |
+The `integration` stress test's iteration count is configurable via the
+`DISKIMAGE_STRESS_ITERS` environment variable.

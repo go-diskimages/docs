@@ -772,13 +772,13 @@ sharing a 64 KiB cross-block window) — decoded via
 <h2 id="package-functions">Package functions</h2>
 <div class="highlight"><pre><span></span><code><span class="c1">// Pull a Tart image and write its raw disk image.</span>
 <span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tartoci</span><span class="p">.</span><span class="nx">PullDisk</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span>
-<span class="w">    </span><span class="s">&quot;ghcr.io/cirruslabs/macos-sequoia-base:latest&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s">&quot;disk.raw&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">)</span>
+<span class="w">    </span><span class="s">"ghcr.io/cirruslabs/macos-sequoia-base:latest"</span><span class="p">,</span>
+<span class="w">    </span><span class="s">"disk.raw"</span><span class="p">,</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">)</span>
 
 <span class="c1">// Or materialize a full VM bundle (disk.img + config.json + nvram.bin).</span>
 <span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tartoci</span><span class="p">.</span><span class="nx">Pull</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span>
-<span class="w">    </span><span class="s">&quot;ghcr.io/cirruslabs/macos-sequoia-base:latest&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s">&quot;vm/&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">)</span>
+<span class="w">    </span><span class="s">"ghcr.io/cirruslabs/macos-sequoia-base:latest"</span><span class="p">,</span>
+<span class="w">    </span><span class="s">"vm/"</span><span class="p">,</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">)</span>
 </code></pre></div>
 <p>Lower-level building blocks are exported too: <code>ParseReference</code>, <code>NewRegistry</code>
 (<code>Manifest</code>, blob access, token auth), <code>BlobPath</code>, <code>ExtractDisk</code>, the

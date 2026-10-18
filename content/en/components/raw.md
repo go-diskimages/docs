@@ -1,11 +1,16 @@
-# raw — unstructured disk image codec
+---
+title: "raw — unstructured codec"
+weight: 70
+---
+
+# raw — unstructured disk image codec {#raw-unstructured-disk-image-codec}
 
 `github.com/go-diskimages/raw` (Go package `image_raw`) is a pure-Go
 creator, detector, converter, and read-write block device for the **raw**
 (unstructured) disk-image format. No CGO, no external tools. Works on all
 platforms and all supported Go architectures.
 
-## Format
+## Format {#format}
 
 A raw image is a plain byte-for-byte image of a block device: the file's
 contents **are** the disk contents. There is no header, no metadata, no
@@ -21,7 +26,7 @@ allocation table, and no compression — the trivial *identity* format of the
   shrink (discarded tail) are safe, since there is no internal structure to
   corrupt.
 
-## Package functions
+## Package functions {#package-functions}
 
 ```go
 // Create writes a new empty raw disk image with the given size in bytes.
@@ -36,9 +41,9 @@ func IsRawImage(path string) (bool, error)
 func ConvertToRaw(src, dst string, w io.Writer) error
 ```
 
-## `Format`
+## `Format` {#format_1}
 
-`Format{}` satisfies the [`interface`](interface.md) `Format` contract
+`Format{}` satisfies the [`interface`]({{< relref "interface.md" >}}) `Format` contract
 structurally (no import needed):
 
 ```go
@@ -51,7 +56,7 @@ func (Format) ToRaw(src, dst string, w io.Writer) error     // identity copy
 func (Format) Resize(path string, newSizeBytes int64) error // grow or shrink
 ```
 
-## `Device` — read-write block access
+## `Device` — read-write block access {#device-read-write-block-access}
 
 `OpenDevice` opens a raw image as a random-access block device. Virtual
 offset N maps directly onto file offset N.

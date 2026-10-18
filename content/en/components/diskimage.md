@@ -1,4 +1,9 @@
-# diskimage — toolkit + CLI
+---
+title: "diskimage — toolkit + CLI"
+weight: 40
+---
+
+# diskimage — toolkit + CLI {#diskimage-toolkit-cli}
 
 `github.com/go-diskimages/diskimage` is the unified toolkit (library + CLI) for
 **creating, converting, resizing**, and reading/writing files inside VM disk
@@ -12,15 +17,15 @@ the older `diskimagec`).
 github.com/go-diskimages/diskimage
 ```
 
-It composes the [`qcow2`](qcow2.md) and [`dmg`](dmg.md) codecs, the
+It composes the [`qcow2`]({{< relref "qcow2.md" >}}) and [`dmg`]({{< relref "dmg.md" >}}) codecs, the
 [go-filesystems](https://github.com/go-filesystems) drivers, and
 [go-fde](https://github.com/go-fde) (APFS/LUKS encryption) into one CLI +
 library — see its `go.mod` for exact versions. GRUB-config patching lives in
 the sibling [`go-bootloaders/grub`](https://go-bootloaders.github.io/docs/)
 package; OCI/Tart image extraction lives in the sibling
-[`tart-oci`](tart-oci.md) package.
+[`tart-oci`]({{< relref "tart-oci.md" >}}) package.
 
-## Block device dispatcher
+## Block device dispatcher {#block-device-dispatcher}
 
 `OpenBlockDevice` opens a raw, QCOW2, or **UDIF-UDRW DMG** image behind one
 uniform `BlockDevice` (`ReadAt` / `WriteAt` / `Size` / `Close`):
@@ -37,15 +42,18 @@ dev.ReadAt(buf, 0)
 Format is auto-detected: QCOW2 by its magic bytes, UDIF DMG by the `koly`
 trailer, everything else as a raw file.
 
-!!! warning "UDIF is UDRW-only and in place"
-    Read/Write are bounded to the data fork (the sector area at file offset 0).
-    `Close` refreshes the koly trailer's `dataForkChecksum` + `masterChecksum`
-    when anything was written, so the next open passes master-checksum
-    verification. Compressed subformats (UDRO / UDZO / UDBZ / UDSP) are rejected
-    with a pointer to `dmg.UnpackToTemp` + `PackFromTemp` for the explicit
-    unpack-edit-repack path.
+{{< callout type="warning" >}}
+**UDIF is UDRW-only and in place**
 
-### LUKS
+Read/Write are bounded to the data fork (the sector area at file offset 0).
+`Close` refreshes the koly trailer's `dataForkChecksum` + `masterChecksum`
+when anything was written, so the next open passes master-checksum
+verification. Compressed subformats (UDRO / UDZO / UDBZ / UDSP) are rejected
+with a pointer to `dmg.UnpackToTemp` + `PackFromTemp` for the explicit
+unpack-edit-repack path.
+{{< /callout >}}
+
+### LUKS {#luks}
 
 `OpenLUKSBlockDevice` layers LUKS decryption on top of a raw or QCOW2 backing:
 
@@ -63,7 +71,7 @@ Backing is raw (fallback) or QCOW2 (magic `QFI\xfb`). `Size()` returns the
 decrypted payload length — `0` for LUKS1 (its header does not encode the
 payload length), the configured length for LUKS2.
 
-## Image creation, growing, resizing, converting
+## Image creation, growing, resizing, converting {#image-creation-growing-resizing-converting}
 
 ```go
 func Create(opts CreateOptions) error
@@ -80,7 +88,7 @@ optional FileVault passphrase. `ResizeImage`/`ConvertImageFormat` are pure Go
 (via the `dmg` codec) and cross-platform. QCOW2 creation is exposed by the CLI
 (`diskimage create qcow2`) directly through the sibling `qcow2` package.
 
-## In-image file operations
+## In-image file operations {#in-image-file-operations}
 
 ```go
 func ReadFile(opts FileOptions) ([]byte, error)
@@ -94,7 +102,7 @@ func List(opts ListOptions) ([]ListEntry, error)
 func DetectFilesystem(imagePath string, partIndex int) (FilesystemType, error)
 ```
 
-## ext4 volume label
+## ext4 volume label {#ext4-volume-label}
 
 ```go
 func SetExt4Label(imagePath string, partIndex int, label string) error
@@ -108,7 +116,7 @@ refreshed with the kernel-canonical CRC-32C convention
 (`crc32c(~0, sb[:0x3FC])`, no final XOR). Use it **offline** — concurrent
 writers may produce a torn superblock.
 
-## Filesystem detection
+## Filesystem detection {#filesystem-detection}
 
 `OpenBlockDevice` plus the package's `detect.go` recognise the filesystem inside
 a backing image:
@@ -124,7 +132,7 @@ a backing image:
 | XFS        | superblock magic `XFSB` at offset 0                     |
 | ZFS        | vdev label magic across blocks 0 / 256K / end           |
 
-## Build requirements
+## Build requirements {#build-requirements}
 
 Pure Go (`CGO_ENABLED=0`), cross-platform, all six supported 64-bit
 architectures. A handful of darwin-only integration tests additionally
@@ -133,7 +141,7 @@ cross-check the pure-Go UDIF codec against real `hdiutil` output and the
 are not part of the public API and are not required to build or use the
 library on any platform.
 
-## Debugging
+## Debugging {#debugging}
 
 The `integration` stress test's iteration count is configurable via the
 `DISKIMAGE_STRESS_ITERS` environment variable.

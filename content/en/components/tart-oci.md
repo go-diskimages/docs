@@ -1,4 +1,9 @@
-# tart-oci — Tart/OCI disk puller
+---
+title: "tart-oci — Tart/OCI puller"
+weight: 80
+---
+
+# tart-oci — Tart/OCI disk puller {#tart-oci-tartoci-disk-puller}
 
 `github.com/go-diskimages/tart-oci` (Go package `tartoci`) pulls
 [Tart](https://github.com/cirruslabs/tart) VM images stored as OCI artifacts
@@ -7,7 +12,7 @@ in a registry (e.g. `ghcr.io/cirruslabs/*`). It speaks the OCI distribution
 disk layers, and materializes a byte-exact raw disk — pure Go (`CGO_ENABLED=0`),
 no `tart`, no `hdiutil`, no darwin-only code.
 
-## Tart's OCI layout
+## Tart's OCI layout {#tarts-oci-layout}
 
 A Tart image is an OCI image manifest whose layers are:
 
@@ -25,7 +30,7 @@ sharing a 64 KiB cross-block window) — decoded via
 [`go-compressions/lz4`](https://github.com/go-compressions/lz4)
 (`DecompressAppleStream`).
 
-## Package functions
+## Package functions {#package-functions}
 
 ```go
 // Pull a Tart image and write its raw disk image.
@@ -45,7 +50,7 @@ Lower-level building blocks are exported too: `ParseReference`, `NewRegistry`
 
 Options: `WithHTTPClient`, `WithBaseURL`, `WithBasicAuth` (for private repos).
 
-### Verification
+### Verification {#verification}
 
 Every disk layer is checked against its `sha256` blob digest, its declared
 uncompressed size, and its uncompressed content digest before its bytes are
@@ -53,9 +58,9 @@ trusted; config and NVRAM blobs are checked against their digests. A
 digest/size mismatch, an auth failure, or a malformed manifest is returned as
 an error — none of those paths silently succeed.
 
-## Composition with go-diskimages
+## Composition with go-diskimages {#composition-with-go-diskimages}
 
-`Format` structurally satisfies the [`interface`](interface.md) `Format`
+`Format` structurally satisfies the [`interface`]({{< relref "interface.md" >}}) `Format`
 contract (`Name`/`Create`/`Detect`/`ToRaw`/`Resize`) over a locally-cached
 Tart **OCI layout directory**, so a pulled image composes with the rest of
 the `go-diskimages` family (`raw`, `qcow2`, `dmg`, …).

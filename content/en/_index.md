@@ -1,4 +1,9 @@
-# go-diskimages
+---
+title: "Home"
+weight: 10
+---
+
+# go-diskimages {#go-diskimages}
 
 Pure-Go **disk-image tooling** — create, detect, convert, and resize VM disk
 images with **no cgo and no external tools** (`hdiutil`, `qemu-img`, `plutil`
@@ -21,16 +26,16 @@ It pairs with the sibling storage orgs — [go-volumes](https://github.com/go-vo
 filesystem formats) — and feeds image preparation for Apple
 Virtualization.framework VMs.
 
-## Components
+## Components {#components}
 
 | Module | Layer | What it does |
 |--------|-------|--------------|
-| [`interface`](components/interface.md) | contract | The shared format contract (`Name`/`Create`/`Detect`/`ToRaw`/`Resize`) every codec satisfies structurally — no import required. |
-| [`diskimage`](components/diskimage.md) | toolkit | Unified create/convert/resize toolkit + `cmd/diskimage` CLI; block devices (with optional LUKS/APFS-FDE) over raw / QCOW2 / UDIF-DMG, in-image file operations, filesystem detection, ext4 label edit. |
-| [`qcow2`](components/qcow2.md) | codec | QCOW2 v2/v3 codec — create, detect, convert-to-raw, resize, and a lazy copy-on-write block device. Big-endian on-disk. |
-| [`dmg`](components/dmg.md) | codec | Apple UDIF/DMG helpers — detect, convert between variants, resize, wrap/unwrap raw. Big-endian `koly` trailer. Pure Go, cross-platform. |
-| [`raw`](components/raw.md) | codec | The unstructured identity format — create, detect, identity convert, grow/shrink, and a read-write block device. |
-| [`tart-oci`](components/tart-oci.md) | codec | Pulls Tart VM images from an OCI registry, verifies every blob by digest, and materializes a byte-exact raw disk. |
+| [`interface`]({{< relref "components/interface.md" >}}) | contract | The shared format contract (`Name`/`Create`/`Detect`/`ToRaw`/`Resize`) every codec satisfies structurally — no import required. |
+| [`diskimage`]({{< relref "components/diskimage.md" >}}) | toolkit | Unified create/convert/resize toolkit + `cmd/diskimage` CLI; block devices (with optional LUKS/APFS-FDE) over raw / QCOW2 / UDIF-DMG, in-image file operations, filesystem detection, ext4 label edit. |
+| [`qcow2`]({{< relref "components/qcow2.md" >}}) | codec | QCOW2 v2/v3 codec — create, detect, convert-to-raw, resize, and a lazy copy-on-write block device. Big-endian on-disk. |
+| [`dmg`]({{< relref "components/dmg.md" >}}) | codec | Apple UDIF/DMG helpers — detect, convert between variants, resize, wrap/unwrap raw. Big-endian `koly` trailer. Pure Go, cross-platform. |
+| [`raw`]({{< relref "components/raw.md" >}}) | codec | The unstructured identity format — create, detect, identity convert, grow/shrink, and a read-write block device. |
+| [`tart-oci`]({{< relref "components/tart-oci.md" >}}) | codec | Pulls Tart VM images from an OCI registry, verifies every blob by digest, and materializes a byte-exact raw disk. |
 
 GRUB config patching lives in the sibling
 [`go-bootloaders/grub`](https://go-bootloaders.github.io/docs/) package, not

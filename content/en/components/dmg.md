@@ -1,10 +1,15 @@
-# dmg — Apple UDIF/DMG
+---
+title: "dmg — Apple UDIF/DMG"
+weight: 60
+---
+
+# dmg — Apple UDIF/DMG {#dmg-apple-udifdmg}
 
 `github.com/go-diskimages/dmg` is a pure-Go set of helpers for the native
 Apple **UDIF** disk-image format (`.dmg`). No external tools (`hdiutil`,
 `plutil`) are required, and it works on **all platforms** — not just macOS.
 
-## Format
+## Format {#format}
 
 A UDIF file ends with a 512-byte **`koly` trailer (big-endian)** that records
 the image variant, the data-fork offset/length, and the offset/length of an
@@ -31,7 +36,7 @@ Image variants:
 | `UDBZ` | 5    | ✓    | —     | bzip2 compressed (write not supported) |
 | `UDSP` | 11   | ✓    | ✓     | Sparse (NOCOPY runs for zero sectors)  |
 
-## Public API
+## Public API {#public-api}
 
 ```go
 // DetectUDIFFormat returns "UDRW", "UDSP", … from the koly trailer.
@@ -60,9 +65,9 @@ func PackFromTemp(tmpPath, destPath string) error
 func WrapRaw(path string) error
 ```
 
-## `Format`
+## `Format` {#format_1}
 
-`Format{}` satisfies the [`interface`](interface.md) `Format` contract
+`Format{}` satisfies the [`interface`]({{< relref "interface.md" >}}) `Format` contract
 structurally (no import needed):
 
 ```go
@@ -75,7 +80,7 @@ func (Format) ToRaw(src, dst string, w io.Writer) error     // extract sectors �
 func (Format) Resize(path string, newSizeBytes int64) error // grow or shrink
 ```
 
-## Examples
+## Examples {#examples}
 
 ```go
 import "github.com/go-diskimages/dmg"

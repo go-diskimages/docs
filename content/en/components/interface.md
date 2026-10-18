@@ -1,4 +1,9 @@
-# interface — the format contract
+---
+title: "interface — the format contract"
+weight: 30
+---
+
+# interface — the format contract {#interface-the-format-contract}
 
 `github.com/go-diskimages/interface` (Go package `diskimage_format`) is the
 shared **disk-image format contract** for the family. It depends only on `io`,
@@ -6,14 +11,17 @@ builds with `CGO_ENABLED=0`, and defines what it means to be a disk-image
 format: create a blank image, detect an existing one, convert it to raw, and
 resize it.
 
-!!! tip "Codecs do not import this module"
-    Go's structural typing means any type whose method set is a superset of an
-    interface satisfies it automatically. The [`qcow2`](qcow2.md) and
-    [`dmg`](dmg.md) `Format` values satisfy `Format` here **without importing
-    this module**. Only callers that need to use formats *polymorphically* import
-    it and declare the interface variable.
+{{< callout type="info" >}}
+**Codecs do not import this module**
 
-## The interfaces
+Go's structural typing means any type whose method set is a superset of an
+interface satisfies it automatically. The [`qcow2`]({{< relref "qcow2.md" >}}) and
+[`dmg`]({{< relref "dmg.md" >}}) `Format` values satisfy `Format` here **without importing
+this module**. Only callers that need to use formats *polymorphically* import
+it and declare the interface variable.
+{{< /callout >}}
+
+## The interfaces {#the-interfaces}
 
 The full `Format` is composed from four single-purpose interfaces:
 

@@ -1,4 +1,9 @@
-# qcow2 — QCOW2 v2/v3 codec
+---
+title: "qcow2 — QCOW2 v2 codec"
+weight: 50
+---
+
+# qcow2 — QCOW2 v2/v3 codec {#qcow2-qcow2-v2v3-codec}
 
 `github.com/go-diskimages/qcow2` (Go package `image_qcow2`) is a pure-Go
 codec for the **QCOW2** disk-image format. Standard library only,
@@ -7,7 +12,7 @@ the L1/L2 cluster tables, the refcount table/blocks, and compressed-cluster
 descriptors — are read and written **big-endian**, matching the QCOW2 wire
 format. The magic bytes are `0x514649fb` (`QFI\xfb`).
 
-## Package functions
+## Package functions {#package-functions}
 
 ```go
 // Create writes a new empty QCOW2 v2 image (no allocated data clusters;
@@ -26,9 +31,9 @@ func IsQCOW2File(path string) bool
 func ConvertToRaw(src, dst string, w io.Writer) error
 ```
 
-## `Format`
+## `Format` {#format}
 
-`Format{}` satisfies the [`interface`](interface.md) `Format` contract
+`Format{}` satisfies the [`interface`]({{< relref "interface.md" >}}) `Format` contract
 structurally (no import needed):
 
 ```go
@@ -46,7 +51,7 @@ header and extends the L1 table with zero (unallocated) entries when the new
 size needs more L1 capacity. **Shrinking is rejected** — a smaller size could
 silently discard allocated data.
 
-## `Device` — lazy copy-on-write block access
+## `Device` — lazy copy-on-write block access {#device-lazy-copy-on-write-block-access}
 
 `OpenDevice` opens a QCOW2 image as a read-write block device:
 
